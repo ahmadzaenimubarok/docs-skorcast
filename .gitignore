@@ -1,0 +1,8 @@
+# MkDocs build output (di-build saat deploy, tidak di-commit)
+site/
+
+# Python venv
+.venv/
+
+# Env
+.env
