@@ -2,6 +2,11 @@ site_name: Skorcast Docs
 site_description: Dokumentasi project Skorcast — apa yang dibuat dan kenapa.
 site_url: https://docs.skorcast.online
 
+# Repo (edit link di tiap halaman)
+repo_url: https://github.com/ahmadzaenimubarok/docs-skorcast
+repo_name: ahmadzaenimubarok/docs-skorcast
+edit_uri: edit/main/docs
+
 # Ganti dengan repo kamu nanti (saat repo docs-skorcast sudah dibuat)
 # repo_url: https://github.com/ahmadzaenimubarok/docs-skorcast
 # repo_name: ahmadzaenimubarok/docs-skorcast
