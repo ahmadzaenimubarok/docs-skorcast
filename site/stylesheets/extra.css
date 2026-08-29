@@ -1,0 +1,54 @@
+/* Skorcast Docs — perbaikan tipografi & list rendering */
+
+:root {
+  --md-text-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --md-code-font: "SFMono-Regular", "Roboto Mono", Menlo, Consolas, monospace;
+}
+
+/* Body lebih nyaman dibaca */
+.md-typeset {
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+/* Heading tidak terlalu rapat */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4 {
+  line-height: 1.3;
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+  font-weight: 600;
+}
+
+/* Pertegas ordered/unordered list agar tiap item benar-benar block */
+.md-typeset ol,
+.md-typeset ul {
+  margin: 0.9em 0;
+  padding-left: 1.4em;
+}
+
+.md-typeset li {
+  display: list-item;
+  margin: 0.4em 0;
+}
+
+/* Baris lanjutan dalam item (wrap panjang) masuk ke dalam, bukan baris baru */
+.md-typeset li > p {
+  margin: 0;
+  display: inline;
+}
+
+/* Blockquote (catatan) lebih jelas */
+.md-typeset blockquote {
+  border-left: 4px solid var(--md-accent-fg-color);
+  padding-left: 1em;
+  color: var(--md-typeset-color);
+}
+
+/* Code inline tidak terlalu sempit */
+.md-typeset code {
+  padding: 0.1em 0.35em;
+}
