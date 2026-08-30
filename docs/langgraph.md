@@ -12,7 +12,6 @@ direpresentasikan sebagai **graph**: tiap langkah = *node*, transisi = *edge*
 
 ## Kenapa pakai LangGraph (bukan LangChain biasa / framework lain)?
 Kebutuhan Skorcast untuk admin bikin turnamen via chat:
-
 1. **Human-in-the-loop wajib** — agen harus draft rencana insert, lalu MINTA
    KONFIRMASI sebelum menulis ke database. Ini fitur bawaan LangGraph
    (`interrupt()` / checkpoint), tidak perlu kita bangun manual.
