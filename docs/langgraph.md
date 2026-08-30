@@ -61,3 +61,21 @@ agent resume → eksekusi insert ke Postgres
   - Insert nyata ke `tournaments` baru dilakukan setelah alur konfirmasi
     kamu validasi aman di testing.
 - **Konvensi**: tiap tambahan terkait agent didokumentasikan di `docs/` ini.
+
+## Revisi 30 Aug 2026 — `participant_count` jadi opsional (default bebas)
+**Yang ditambah/diubah:**
+- `create_tournament_draft` (tool agent): `participant_count` kini **opsional**
+  (default `None` = bebas tanpa batas peserta). Dikeluarkan dari `required`.
+- SYSTEM_PROMPT: jumlah peserta tidak lagi wajib dikumpulkan; agent BOLEH
+  menanyakan tapi TIDAK memaksa. Info wajib cukup: nama, format, sistem skor.
+- `insert_node` (`nodes.py`): menulis `participant_count` ke kolom
+  `max_participants` (nullable) supaya nilai bebas tersimpan; juga
+  mengembalikannya di `result` (termasuk `max_participants`).
+- `finish_node`: peserta tampil "bebas" bila `participant_count` kosong.
+
+**KENAPA:**
+- Keputusan produk: jumlah peserta tidak selalu diketahui di awal; turnamen
+  boleh dibuat dulu lalu peserta ditambah belakangan (sesuai alur form admin
+  yang mengizinkan `max_participants` null = tanpa batas baku).
+- Menjaga keselarasan antara tool agent dan model `Tournament`
+  (`max_participants` nullable) agar turnamen dari chat tidak terkunci angka.
