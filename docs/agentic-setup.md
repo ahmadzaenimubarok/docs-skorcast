@@ -3,6 +3,10 @@
 > Ditulis saat implementasi fitur agent pembuat turnamen (Python + LangGraph), 30 Aug 2026.
 > Tujuannya: menjelaskan **apa itu agent ini, apa saja yang ada di dalamnya,
 > bagaimana alurnya, dan metode yang dipakai** — bukan sekadar catatan commit.
+>
+> **Catatan konteks (untuk Hermes):** file ini juga berfungsi sebagai *context store*
+> agar tidak perlu membaca seluruh source setiap sesi. Jika ada perubahan pada
+> tools, graph, atau flow, UPDATE bagian terkait di sini, bukan hanya commit log.
 
 ---
 
@@ -109,13 +113,51 @@ Helper `get_client()` + `MODEL`. Membaca env `OPENCODE_ZEN_API_KEY`,
 OpenAI-compatible, jadi gampang ganti provider.
 
 ### MODULE 3 — Tools & Agent Node (`agent/agent/agent_node.py`)
-- `create_tournament_draft` — tool yang bisa dipanggil LLM. Hanya menyimpan draf,
-  **bukan** insert.
+
+**Tools yang dibuat (1 buah saja): `create_tournament_draft`**
+
+- **Lokasi**: `agent/agent/agent_node.py` (didekorasi `@tool`, sekitar baris 52).
+- **Tanda tangan**:
+  ```python
+  @tool
+  def create_tournament_draft(
+      name: str,
+      play_mode: str,
+      participant_count: int,
+      points_to_win: int,
+      cap: int,
+      mid_game_interval_at: int,
+      switch_end_game3: int,
+  ) -> str:
+      """Panggil saat semua info turnamen sudah lengkap. Menyimpan draf (belum insert)."""
+  ```
+- **Field & nilai valid**:
+  | Field | Tipe | Nilai |
+  |-------|------|-------|
+  | `name` | str | bebas |
+  | `play_mode` | str | `"doubles"` / `"singles"` |
+  | `participant_count` | int | > 0 |
+  | `points_to_win` | int | 21 atau 15 |
+  | `cap` | int | 30 (jika 21) / 21 (jika 15) |
+  | `mid_game_interval_at` | int | 11 (jika 21) / 8 (jika 15) |
+  | `switch_end_game3` | int | 11 (jika 21) / 8 (jika 15) |
+- **Yang DILAKUKAN**: menyimpan field ke `state["draft"]` (lewat `tools_handler`).
+- **Yang TIDAK dilakukan**: **tidak** menulis ke Postgres, **tidak** mengubah data
+  produksi. Ia murni "ajukan draf".
+- **Kapan dipanggil**: LLM memanggilnya sendiri bila yakin info sudah lengkap
+  (diarahkan oleh `SYSTEM_PROMPT` di file ini).
+- **Setelah dipanggil**: graph berhenti di `wait_confirm` (interrupt) menunggu admin
+  approve; baru node `insert` yang tulis ke DB.
+
+**Node lain di modul ini:**
 - `agent_node` — memanggil LLM dengan riwayat + tool. LLM yang menentukan balasan
   dan kapan memanggil tool.
 - `tools_handler` — menjalankan tool, menyimpan hasil ke `state["draft"]`.
 - `finish_node` — setelah insert, LLM menyusun pesan penutup natural
   (detail + URL), bukan template.
+
+> **Catatan**: `create_tournament_draft` adalah **satu-satunya tool** di agent ini.
+> Tools lain (edit/cancel) belum ada — ruang lingkup saat ini hanya pembuat turnamen.
 
 ### MODULE 4 — Executor (`agent/agent/nodes.py`)
 `insert_node` — menulis ke `tournaments` (Postgres) **hanya bila** `decision == "approve"`.
