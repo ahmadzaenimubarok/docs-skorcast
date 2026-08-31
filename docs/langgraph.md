@@ -79,3 +79,27 @@ agent resume → eksekusi insert ke Postgres
   yang mengizinkan `max_participants` null = tanpa batas baku).
 - Menjaga keselarasan antara tool agent dan model `Tournament`
   (`max_participants` nullable) agar turnamen dari chat tidak terkunci angka.
+
+## Revisi 31 Aug 2026 — pertegas batasan domain agent (tanpa guard)
+**Yang ditambah/diubah:**
+- `SYSTEM_PROMPT` (`agent_node.py`): ubah identitas dari "asisten pembuat
+  turnamen" jadi "asisten resmi aplikasi Skorcast" dengan cakupan domain
+  umum (turnamen, skor, klasemen, peserta, pertandingan, dll — menyambut
+  tools lain seperti read/klasemen di masa depan).
+- Tambah blok **BATASAN DOMAIN** yang wajib: topik di luar Skorcast (tokoh
+  umum, pembuatan file, resep, cuaca, koding umum, dll) **dilarang dilayani**
+  — cukup respons singkat yang menolak + mengarahkan ke fungsi Skorcast.
+- Pengecualian: sapaan sosial ringan (halo/kabar/terima kasih) tetap boleh
+  dibalas ramah tanpa mengarahkan topik.
+- Hapus aturan lama #4 ("jika user tidak membahas turnamen, jawab biasa/tolong
+  sesuai maksudnya") yang selama ini membuat agent meladeni obrolan luar topik
+  (contoh: ditanya "kamu tau Bill Gates?" langsung dijawab).
+
+**KENAPA:**
+- Agent sebelumnya meladeni apa pun karena aturan #4 memintanya menolong
+  maksud user secara umum — batas domain jadi tidak ada.
+- User ingin AI yang menentukan sendiri apakah pembahasan masih 1 konteks atau
+  luar konteks (tidak pakai guard/keyword di kode) supaya hasil tidak kaku dan
+  fleksibel menyambut tools lain nanti.
+- Prompt dibuat tegas (kata "JANGAN melayaninya", contoh respons penolakan)
+  agar model konsisten menolak, bukan sekadar "boleh membantu".
