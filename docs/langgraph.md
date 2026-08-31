@@ -103,3 +103,23 @@ agent resume → eksekusi insert ke Postgres
   fleksibel menyambut tools lain nanti.
 - Prompt dibuat tegas (kata "JANGAN melayaninya", contoh respons penolakan)
   agar model konsisten menolak, bukan sekadar "boleh membantu".
+
+## Revisi 31 Aug 2026 (2) — cegah balasan kosong
+**Yang ditambah/diubah:**
+- `agent_node.py`: bila `choice.content` kosong DAN tidak ada `tool_calls`,
+  isi AIMessage dengan fallback `"Terkait Skorcast, ada yang bisa saya bantu?"`
+  (model free `inclusionai/ling-3.0-flash-fin:free` kerap return `content=null`
+  saat hanya menolak topik / konfirmasi singkat tanpa memanggil tool).
+- `api.py` `_last_agent_text`: bila tidak ada AIMessage ber-teks ditemukan,
+  kembalikan fallback `"Maaf, saya belum bisa merespons pesan itu. Bisa diulang?"`
+  sehingga klien tidak pernah menerima `reply` kosong.
+- Restart worker uvicorn (PID lama di-kill, jalankan ulang) agar perubahan aktif.
+
+**KENAPA:**
+- Gejala: beberapa respons agent muncul kosong di UI (`reply=""`) padahal
+  server balik 200 OK. Akar: model free mengembalikan `content: null`, lalu
+  kode menyimpan teks kosong dan `_last_agent_text` mengabaikan AIMessage
+  ber-tool_calls sehingga balik string kosong.
+- Tanpa fallback, UI menampilkan pesan kosong / tag "Selesai" tanpa isi.
+- Perbaikan di dua lapis (isi AIMessage + fallback API) menjamin balasan
+  selalu punya teks minimal, walau model return null.
